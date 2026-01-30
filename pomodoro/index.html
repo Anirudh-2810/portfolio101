@@ -2,108 +2,145 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Quote Pomodoro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Pomodoro</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&display=swap');
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .progress-ring { transition: stroke-dashoffset 0.5s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        body {
+            background-color: #0f172a;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .timer-container {
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 300px;
+        }
+        #timer-display {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #10b981;
+        }
+        .controls input {
+            width: 60px;
+            background: #334155;
+            border: none;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .start { background: #6366f1; color: white; }
+        .reset { background: #ef4444; color: white; }
+        button:hover { opacity: 0.8; }
     </style>
 </head>
-<body class="bg-black text-white flex items-center justify-center h-screen">
-    <div class="text-center p-10 bg-zinc-900 rounded-3xl shadow-2xl border border-zinc-800 w-96">
-        <h2 class="text-xs tracking-[0.3em] font-bold mb-1 text-cyan-400">POMODORO</h2>
-        <p id="phase" class="text-zinc-500 text-sm mb-6 uppercase tracking-widest">Focus</p>
+<body>
+
+    <div class="timer-container">
+        <h2>⏱️ Pomodoro</h2>
         
-        <div class="relative flex items-center justify-center mb-8">
-            <svg class="w-56 h-56">
-                <circle class="text-zinc-800" stroke-width="6" stroke="currentColor" fill="transparent" r="90" cx="112" cy="112"/>
-                <circle id="progress" class="text-emerald-400 progress-ring" stroke-width="6" stroke-dasharray="565.5" stroke-dashoffset="0" stroke-linecap="round" stroke="currentColor" fill="transparent" r="90" cx="112" cy="112"/>
-            </svg>
-            <div id="timerDisplay" class="absolute text-5xl font-mono font-bold text-emerald-400">25:00</div>
+        <div class="controls">
+            <div>
+                Work: <input type="number" id="work-input" value="25"> min
+            </div>
+            <div style="margin-top: 10px;">
+                Break: <input type="number" id="break-input" value="5"> min
+            </div>
         </div>
 
-        <div class="min-h-[80px] mb-8">
-            <p class="text-zinc-500 text-[10px] font-bold uppercase mb-2">Focus Quote</p>
-            <p id="quoteDisplay" class="text-sm px-4 leading-relaxed">Loading focus...</p>
-        </div>
+        <div id="timer-display">25:00</div>
 
-        <div class="flex gap-3 justify-center">
-            <button onclick="toggleTimer()" id="startBtn" class="bg-zinc-100 text-black px-8 py-2 rounded-full font-bold hover:bg-white transition">Start</button>
-            <button onclick="reset()" class="bg-zinc-800 text-white px-8 py-2 rounded-full font-bold hover:bg-zinc-700 transition">Reset</button>
+        <div class="buttons">
+            <button class="start" id="start-btn" onclick="toggleTimer()">Start</button>
+            <button class="reset" onclick="resetTimer()">Reset</button>
         </div>
     </div>
 
+    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock_short.ogg" preload="auto"></audio>
+
     <script>
-        const QUOTES = [
-            "Focus is a muscle; train it every day.",
-            "Small consistent sessions beat long distracted ones.",
-            "Deep work now, freedom later.",
-            "Discipline is choosing what you want most.",
-            "One Pomodoro at a time.",
-            "Silence the noise, follow the task.",
-            "You don’t rise to your goals, you fall to your systems.",
-            "Future you is grateful for this focus.",
-            "Less scrolling, more solving.",
-            "Progress, not perfection."
-        ];
-
-        let timeLeft = 25 * 60;
-        let totalTime = 25 * 60;
+        let timeLeft;
         let timerId = null;
+        let isPaused = true;
 
-        const timerDisplay = document.getElementById('timerDisplay');
-        const progressCircle = document.getElementById('progress');
-        const quoteDisplay = document.getElementById('quoteDisplay');
-        const startBtn = document.getElementById('startBtn');
+        const display = document.getElementById('timer-display');
+        const startBtn = document.getElementById('start-btn');
+        const workInput = document.getElementById('work-input');
+        const alarm = document.getElementById('alarm-sound');
 
-        function updateDisplay() {
-            const mins = Math.floor(timeLeft / 60);
-            const secs = timeLeft % 60;
-            timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            
-            // Update progress circle (Circumference is ~565.5)
-            const offset = 565.5 - (timeLeft / totalTime) * 565.5;
-            progressCircle.style.strokeDashoffset = offset;
+        function init() {
+            timeLeft = workInput.value * 60;
+            updateDisplay();
         }
 
-        function newQuote() {
-            quoteDisplay.innerText = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            display.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         }
 
         function toggleTimer() {
-            if (timerId) {
-                clearInterval(timerId);
-                timerId = null;
-                startBtn.textContent = 'Resume';
-            } else {
-                if (timeLeft === totalTime) newQuote();
+            if (isPaused) {
+                isPaused = false;
                 startBtn.textContent = 'Pause';
+                startBtn.style.background = '#f59e0b';
+                
+                // Set time from input if we are starting fresh
+                if (timeLeft === undefined || timeLeft === workInput.value * 60) {
+                    timeLeft = workInput.value * 60;
+                }
+
                 timerId = setInterval(() => {
                     timeLeft--;
                     updateDisplay();
                     if (timeLeft <= 0) {
                         clearInterval(timerId);
-                        alert("Pomodoro complete! Take a break.");
-                        reset();
+                        alarm.play(); // PLAY SOUND
+                        alert("Time is up! Take a break.");
+                        resetTimer();
                     }
                 }, 1000);
+            } else {
+                clearInterval(timerId);
+                isPaused = true;
+                startBtn.textContent = 'Start';
+                startBtn.style.background = '#6366f1';
             }
         }
 
-        function reset() {
+        function resetTimer() {
             clearInterval(timerId);
-            timerId = null;
-            timeLeft = 25 * 60;
+            isPaused = true;
+            timeLeft = workInput.value * 60;
             updateDisplay();
             startBtn.textContent = 'Start';
-            newQuote();
+            startBtn.style.background = '#6366f1';
         }
 
-        // Initialize
-        updateDisplay();
-        newQuote();
+        // Initialize on load
+        init();
     </script>
 </body>
-</html>
 </html>
