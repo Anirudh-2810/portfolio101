@@ -2,63 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Nexus Pomodoro</title>
+    <title>Scientific Nexus Calc</title>
     <style>
-        body { background-color: #000; color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #0f1115; padding: 40px; border-radius: 30px; text-align: center; width: 350px; border: 1px solid #1f2937; }
-        .title { color: #22d3ee; letter-spacing: 5px; font-size: 0.8rem; margin-bottom: 20px; }
-        .timer-circle { position: relative; width: 220px; height: 220px; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
-        svg { transform: rotate(-90deg); width: 220px; height: 220px; overflow: visible; }
-        circle { fill: none; stroke-width: 8; stroke-linecap: round; }
-        .bg { stroke: #1f2937; }
-        .progress { stroke: #10b981; stroke-dasharray: 565; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; filter: drop-shadow(0 0 10px #10b981); }
-        .time-text { position: absolute; font-size: 3.5rem; font-weight: bold; color: #10b981; font-family: monospace; }
-        .settings { margin: 20px 0; display: flex; justify-content: center; gap: 10px; font-size: 0.7rem; color: #6b7280; }
-        input { background: #1f2937; border: none; color: white; width: 45px; text-align: center; border-radius: 5px; padding: 3px; }
-        .btn-group { margin-top: 30px; display: flex; justify-content: center; gap: 15px; }
-        button { padding: 12px 35px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .start { background: #fff; color: #000; }
-        .reset { background: #1f2937; color: #fff; }
+        body { background-color: #121212; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .calc-body { background: #1a1a1a; padding: 20px; border-radius: 12px; width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #display { width: 100%; background: transparent; border: none; color: white; font-size: 2.5rem; text-align: right; margin-bottom: 20px; outline: none; }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        button { background: #2d2f34; border: none; color: #e8eaed; height: 40px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; }
+        button:hover { background: #3c4043; }
+        .num { background: #3c4043; font-size: 1.1rem; }
+        .blue { background: #8ab4f8; color: #202124; font-size: 1.2rem; grid-column: span 2; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="title">POMODORO</div>
-        <div class="settings">
-            WORK <input type="number" id="wIn" value="25">
-            BREAK <input type="number" id="bIn" value="5">
-        </div>
-        <div class="timer-circle">
-            <svg><circle class="bg" cx="110" cy="110" r="90"></circle><circle id="dot" class="progress" cx="110" cy="110" r="90"></circle></svg>
-            <div class="time-text" id="display">25:00</div>
-        </div>
-        <div class="btn-group">
-            <button class="start" id="ctrl" onclick="toggle()">Start</button>
-            <button class="reset" onclick="reset()">Reset</button>
+    <div class="calc-body">
+        <input type="text" id="display" value="0" disabled>
+        <div class="grid">
+            <button onclick="sq()">√</button><button onclick="cb()">∛</button><button onclick="add('**')">xʸ</button><button onclick="add('(')">(</button><button onclick="add(')')">)</button><button onclick="add('%')">%</button><button onclick="clr()">AC</button>
+            <button onclick="sum()">Σ</button><button>sin</button><button>ln</button><button class="num" onclick="add('7')">7</button><button class="num" onclick="add('8')">8</button><button class="num" onclick="add('9')">9</button><button onclick="add('/')">÷</button>
+            <button>π</button><button>cos</button><button>log</button><button class="num" onclick="add('4')">4</button><button class="num" onclick="add('5')">5</button><button class="num" onclick="add('6')">6</button><button onclick="add('*')">×</button>
+            <button>e</button><button>tan</button><button onclick="sq()">√</button><button class="num" onclick="add('1')">1</button><button class="num" onclick="add('2')">2</button><button class="num" onclick="add('3')">3</button><button onclick="add('-')">−</button>
+            <button>Ans</button><button>EXP</button><button onclick="add('**')">xʸ</button><button class="num" onclick="add('0')">0</button><button class="num" onclick="add('.')">.</button><button class="blue" onclick="solve()">=</button><button onclick="add('+')">+</button>
         </div>
     </div>
-    <audio id="alarm" src="https://actions.google.com/sounds/v1/alarms/alarm_clock_short.ogg"></audio>
     <script>
-        let time, maxTime, timer = null, paused = true;
-        const display = document.getElementById('display'), progress = document.getElementById('dot'), alarm = document.getElementById('alarm');
-        function update() {
-            const m = Math.floor(time / 60), s = time % 60;
-            display.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
-            progress.style.strokeDashoffset = 565 - (565 * time) / maxTime;
-        }
-        function toggle() {
-            alarm.play(); alarm.pause(); alarm.currentTime = 0; // Unlock audio
-            if (paused) {
-                if (!time) { time = document.getElementById('wIn').value * 60; maxTime = time; }
-                paused = false; document.getElementById('ctrl').textContent = "Pause";
-                timer = setInterval(() => {
-                    if (time > 0) { time--; update(); }
-                    else { clearInterval(timer); alarm.play(); alert("Focus complete!"); reset(); }
-                }, 1000);
-            } else { clearInterval(timer); paused = true; document.getElementById('ctrl').textContent = "Start"; }
-        }
-        function reset() { clearInterval(timer); paused = true; time = document.getElementById('wIn').value * 60; maxTime = time; document.getElementById('ctrl').textContent = "Start"; update(); }
-        reset();
+        const v = document.getElementById('display');
+        function add(x) { if(v.value === "0") v.value = x; else v.value += x; }
+        function clr() { v.value = "0"; }
+        function sq() { v.value = Math.sqrt(eval(v.value)).toFixed(2); }
+        function cb() { v.value = Math.cbrt(eval(v.value)).toFixed(2); }
+        function sum() { let n = v.value.split('+').map(Number); v.value = n.reduce((a,b)=>a+b,0); }
+        function solve() { try { v.value = eval(v.value); } catch { v.value = "Error"; } }
     </script>
 </body>
 </html>
