@@ -1,0 +1,7 @@
+streamlit
+numpy
+nltk
+beautifulsoup4
+duckduckgo-search
+PyPDF2
+requests
