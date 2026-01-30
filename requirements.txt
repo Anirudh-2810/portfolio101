@@ -5,3 +5,7 @@ beautifulsoup4
 duckduckgo-search
 PyPDF2
 requests
+streamlit==1.31.0
+nltk
+duckduckgo-search
+lucide-react
