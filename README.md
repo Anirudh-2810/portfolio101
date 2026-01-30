@@ -1,1 +1,1 @@
-My portfolio, hopefully ill get add more if thses
+My portfolio, hopefully ill get add more of thses
