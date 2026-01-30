@@ -29,11 +29,15 @@ st.title("🤖 AI Agent is Online")
 st.write("Initializing brain...")
 
 # Move your downloads here
+import streamlit as st
+import nltk
+
 @st.cache_resource
-def load_nltk():
+def init_nltk():
     nltk.download('punkt')
     nltk.download('punkt_tab')
 
+init_nltk()
 load_nltk()
 # Install once: pip install streamlit nltk numpy duckduckgo-search beautifulsoup4 PyPDF2 requests
 
