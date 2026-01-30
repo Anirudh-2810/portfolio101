@@ -2,203 +2,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Nexus Pomodoro</title>
+    <title>Nexus Zen Pomodoro</title>
     <style>
-        body { 
-    background-color: #000; 
-    color: white; 
-    font-family: 'Inter', sans-serif; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    height: 100vh; 
-    margin: 0; 
-}
-
-.card { 
-    background: #111; 
-    padding: 40px; 
-    border-radius: 30px; 
-    text-align: center; 
-    width: 350px; 
-    border: 1px solid #222; 
-}
-
-/* FIX: The Container for the Glow */
-.timer-circle { 
-    position: relative; 
-    width: 240px; /* Slightly larger than the SVG */
-    height: 240px; 
-    margin: 0 auto; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-}
-
-/* FIX: Prevent Light Leak */
-svg { 
-    transform: rotate(-90deg); 
-    width: 220px; 
-    height: 220px; 
-    overflow: visible; /* CRITICAL: Stops the box from cutting the glow */
-} 
-
-circle { 
-    fill: none; 
-    stroke-width: 8; 
-    stroke-linecap: round; 
-}
-
-.bg { 
-    stroke: #1a1a1a; 
-}
-
-/* FIX: The Neon Shader */
-.progress { 
-    stroke: #10b981; 
-    stroke-dasharray: 565; 
-    stroke-dashoffset: 0; 
-    transition: stroke-dashoffset 1s linear; 
-    /* drop-shadow follows the circle path exactly, preventing messy leaks */
-    filter: drop-shadow(0 0 10px #10b981); 
-}
-
-.time-text { 
-    position: absolute; 
-    font-size: 3.5rem; 
-    font-weight: bold; 
-    color: #10b981; 
-    font-family: 'Courier New', monospace; 
-    /* Add a glow to the text to match the ring */
-    text-shadow: 0 0 15px rgba(16, 185, 129, 0.4); 
-}
-        body { background-color: #000; color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        .card { background: #111; padding: 40px; border-radius: 30px; text-align: center; width: 350px; border: 1px solid #222; }
-        .title { color: #22d3ee; letter-spacing: 5px; font-size: 0.8rem; margin-bottom: 5px; }
-        .subtitle { color: #666; font-size: 0.7rem; margin-bottom: 30px; }
+        body { background-color: #000; color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #0a0a0a; padding: 40px; border-radius: 40px; text-align: center; width: 380px; border: 1px solid #1a1a1a; box-shadow: 0 0 50px rgba(0,0,0,1); }
         
-        /* Fixed Glow Ring */
-        .timer-circle { position: relative; width: 220px; height: 220px; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
-        svg { transform: rotate(-90deg); width: 220px; height: 220px; overflow: visible; } /* overflow: visible fixes light leak */
-        circle { fill: none; stroke-width: 8; stroke-linecap: round; }
-        .bg { stroke: #1a1a1a; }
-        .progress { 
-            stroke: #10b981; 
-            stroke-dasharray: 565; 
-            stroke-dashoffset: 0; 
-            transition: stroke-dashoffset 1s linear; 
-            filter: drop-shadow(0 0 12px #10b981); /* Tighter glow */
-        }
+        /* Fixed Shader: Visible overflow prevents light leak */
+        svg { transform: rotate(-90deg); width: 220px; height: 220px; overflow: visible; margin-bottom: 20px; }
+        .bg { fill: none; stroke: #111; stroke-width: 6; }
+        .progress { fill: none; stroke: #22d3ee; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 565; stroke-dashoffset: 0; transition: 1s linear; filter: drop-shadow(0 0 8px #22d3ee); }
         
-        .time-text { position: absolute; font-size: 3.5rem; font-weight: bold; color: #10b981; font-family: 'Courier New', monospace; text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+        .time { font-size: 3.5rem; font-weight: 800; color: #fff; margin-top: -145px; margin-bottom: 80px; font-family: monospace; }
         
-        .settings { margin-bottom: 25px; display: flex; justify-content: center; gap: 15px; font-size: 0.7rem; color: #555; font-weight: bold; }
-        input { background: #1a1a1a; border: 1px solid #333; color: #10b981; width: 45px; text-align: center; border-radius: 5px; padding: 2px; }
+        /* Quote Section at Bottom */
+        .quote-container { margin-top: 30px; padding-top: 20px; border-top: 1px solid #1a1a1a; min-height: 80px; }
+        .quote-label { color: #22d3ee; font-size: 0.6rem; letter-spacing: 3px; font-weight: bold; margin-bottom: 8px; }
+        .quote-text { color: #888; font-style: italic; font-size: 0.9rem; line-height: 1.4; transition: opacity 0.5s; }
 
-        .btn-group { margin-top: 40px; display: flex; justify-content: center; gap: 15px; }
-        button { padding: 12px 35px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .start { background: #fff; color: #000; }
-        .reset { background: #222; color: #666; }
-        button:hover { transform: scale(1.05); }
+        .btns { margin-top: 30px; display: flex; gap: 10px; justify-content: center; }
+        button { padding: 12px 25px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .start { background: #22d3ee; color: #000; }
+        .reset { background: #111; color: #444; }
+        button:hover { transform: translateY(-2px); opacity: 0.9; }
     </style>
 </head>
 <body>
-                     
+
     <div class="card">
-        <div class="title">POMODORO</div>
-        <div class="subtitle">SYSTEM ACTIVE</div>
+        <svg><circle class="bg" cx="110" cy="110" r="90"></circle><circle id="dot" class="progress" cx="110" cy="110" r="90"></circle></svg>
+        <div class="time" id="display">25:00</div>
 
-        <div class="settings">
-            <span>WORK <input type="number" id="wIn" value="25"></span>
-            <span>BREAK <input type="number" id="bIn" value="5"></span>
-        </div>
-
-        <div class="timer-circle">
-            <svg>
-                <circle class="bg" cx="110" cy="110" r="90"></circle>
-                <circle id="dot" class="progress" cx="110" cy="110" r="90"></circle>
-            </svg>
-            <div class="time-text" id="display">25:00</div>
-        </div>
-
-        <div class="btn-group">
-            <button class="start" id="ctrl" onclick="toggle()">Start</button>
+        <div class="btns">
+            <button class="start" id="ctrl" onclick="toggle()">Start Session</button>
             <button class="reset" onclick="reset()">Reset</button>
+        </div>
+
+        <div class="quote-container">
+            <div class="quote-label">NEURAL MOTIVATION</div>
+            <div id="quote" class="quote-text">Initializing...</div>
         </div>
     </div>
 
-    <audio id="alarm" src="https://actions.google.com/sounds/v1/alarms/alarm_clock_short.ogg" preload="auto"></audio>
+    <audio id="alarm" src="https://actions.google.com/sounds/v1/alarms/alarm_clock_short.ogg"></audio>
 
     <script>
         const quotes = [
-    "Progress, not perfection.",
-    "Focus on being productive instead of busy.",
-    "Your focus determines your reality.",
-    "The secret of getting ahead is getting started.",
-    "Deep work is the superpower of the 21st century."
-];
+            "Your limitation—it's only your imagination.",
+            "Push yourself, because no one else is going to do it for you.",
+            "Great things never come from comfort zones.",
+            "Success doesn’t just find you. You have to go out and get it.",
+            "Dream it. Wish it. Do it."
+        ];
 
-function newQuote() {
-    const quoteText = document.querySelector('.quote-text');
-    // Picks a random quote from the list
-    const randomIndex = Math.floor(Math.random() * quotes.length);
-    quoteText.textContent = quotes[randomIndex];
-}
         let time, maxTime, timer = null, paused = true;
-        const display = document.getElementById('display');
-        const progress = document.getElementById('dot');
-        const alarm = document.getElementById('alarm');
+        const display = document.getElementById('display'), progress = document.getElementById('dot'), alarm = document.getElementById('alarm'), qElem = document.getElementById('quote');
+
+        function newQuote() { qElem.style.opacity = 0; setTimeout(() => { qElem.textContent = quotes[Math.floor(Math.random() * quotes.length)]; qElem.style.opacity = 1; }, 500); }
 
         function update() {
             const m = Math.floor(time / 60), s = time % 60;
             display.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
-            const offset = 565 - (565 * time) / maxTime;
-            progress.style.strokeDashoffset = offset;
+            progress.style.strokeDashoffset = 565 - (565 * time) / maxTime;
         }
 
         function toggle() {
-            // "Unlock" sound for browsers on first click
-            alarm.play(); alarm.pause(); alarm.currentTime = 0;
-        function reset() {
-    // ... your existing reset logic ...
-    newQuote(); // Changes the quote every time you hit reset
-}
-
-// Initialize on page load
-newQuote();
-
+            alarm.play(); alarm.pause(); alarm.currentTime = 0; // Browser sound unlock
             if (paused) {
-                if (!time) {
-                    time = document.getElementById('wIn').value * 60;
-                    maxTime = time;
-                }
-                paused = false;
-                document.getElementById('ctrl').textContent = "Pause";
+                if (!time) { time = 25 * 60; maxTime = time; }
+                paused = false; document.getElementById('ctrl').textContent = "Pause";
                 timer = setInterval(() => {
-                    if (time > 0) {
-                        time--; update();
-                    } else {
-                        clearInterval(timer);
-                        alarm.play(); // Sound plays here
-                        alert("Session Complete!");
-                        reset();
-                    }
+                    if (time > 0) { time--; update(); }
+                    else { clearInterval(timer); alarm.play(); newQuote(); reset(); }
                 }, 1000);
-            } else {
-                clearInterval(timer);
-                paused = true;
-                document.getElementById('ctrl').textContent = "Start";
-            }
+            } else { clearInterval(timer); paused = true; document.getElementById('ctrl').textContent = "Start"; }
         }
 
-        function reset() {
-            clearInterval(timer); paused = true;
-            time = document.getElementById('wIn').value * 60;
-            maxTime = time;
-            document.getElementById('ctrl').textContent = "Start";
-            update();
-        }
+        function reset() { clearInterval(timer); paused = true; time = 25 * 60; maxTime = time; document.getElementById('ctrl').textContent = "Start Session"; update(); newQuote(); }
         reset();
-    </script>
+    </div>
 </body>
 </html>
