@@ -5,7 +5,7 @@ Searches web AUTOMATICALLY when needed (95% → 99% accuracy)
 import nltk
 nltk.download('punkt_tab')
 import numpy as np
-import nltk
+
 import random
 import re
 import streamlit as st
@@ -18,7 +18,11 @@ from bs4 import BeautifulSoup
 from duckduckgo_search import DDGS
 import PyPDF2
 import io
-
+import nltk
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
 
 # Force something to show up immediately
 st.title("🤖 AI Agent is Online")
