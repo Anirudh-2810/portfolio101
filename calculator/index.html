@@ -3,144 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Pomodoro</title>
+    <title>Nexus Black Calc</title>
     <style>
         body {
-            background-color: #0f172a;
+            background-color: #000000; /* Pure Black Background */
             color: white;
             font-family: 'Segoe UI', sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
             margin: 0;
         }
-        .timer-container {
-            background: #1e293b;
-            padding: 2rem;
+        .calc-container {
+            background: #111111;
+            padding: 20px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
-            width: 300px;
+            border: 1px solid #333;
+            box-shadow: 0 20px 50px rgba(0,0,0,1);
+            width: 320px;
         }
-        #timer-display {
-            font-size: 4rem;
-            font-weight: bold;
-            margin: 20px 0;
-            color: #10b981;
-        }
-        .controls input {
-            width: 60px;
-            background: #334155;
+        #display {
+            width: 100%;
+            height: 60px;
+            background: transparent;
             border: none;
-            color: white;
-            padding: 5px;
-            border-radius: 5px;
-            text-align: center;
+            color: #10b981; /* Neon Green Text */
+            font-size: 2rem;
+            text-align: right;
+            margin-bottom: 20px;
+            outline: none;
         }
         .buttons {
-            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
         }
         button {
-            padding: 10px 20px;
-            margin: 5px;
+            height: 60px;
+            border-radius: 12px;
             border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            font-size: 1.2rem;
             font-weight: bold;
-            transition: 0.3s;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #222;
+            color: white;
         }
-        .start { background: #6366f1; color: white; }
-        .reset { background: #ef4444; color: white; }
-        button:hover { opacity: 0.8; }
+        button:hover { background: #333; }
+        .operator { background: #312e81; color: #818cf8; }
+        .equals { background: #10b981; color: white; grid-column: span 2; }
+        .clear { background: #ef4444; color: white; }
     </style>
 </head>
 <body>
 
-    <div class="timer-container">
-        <h2>⏱️ Pomodoro</h2>
-        
-        <div class="controls">
-            <div>
-                Work: <input type="number" id="work-input" value="25"> min
-            </div>
-            <div style="margin-top: 10px;">
-                Break: <input type="number" id="break-input" value="5"> min
-            </div>
-        </div>
-
-        <div id="timer-display">25:00</div>
-
+    <div class="calc-container">
+        <input type="text" id="display" disabled value="0">
         <div class="buttons">
-            <button class="start" id="start-btn" onclick="toggleTimer()">Start</button>
-            <button class="reset" onclick="resetTimer()">Reset</button>
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button class="operator" onclick="appendToDisplay('/')">/</button>
+            <button class="operator" onclick="appendToDisplay('*')">×</button>
+            <button class="operator" onclick="deleteLast()">⌫</button>
+            
+            <button onclick="appendToDisplay('7')">7</button>
+            <button onclick="appendToDisplay('8')">8</button>
+            <button onclick="appendToDisplay('9')">9</button>
+            <button class="operator" onclick="appendToDisplay('-')">-</button>
+            
+            <button onclick="appendToDisplay('4')">4</button>
+            <button onclick="appendToDisplay('5')">5</button>
+            <button onclick="appendToDisplay('6')">6</button>
+            <button class="operator" onclick="appendToDisplay('+')">+</button>
+            
+            <button onclick="appendToDisplay('1')">1</button>
+            <button onclick="appendToDisplay('2')">2</button>
+            <button onclick="appendToDisplay('3')">3</button>
+            <button onclick="calculate()">=</button>
+            
+            <button onclick="appendToDisplay('0')" style="grid-column: span 2;">0</button>
+            <button onclick="appendToDisplay('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
         </div>
     </div>
 
-    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock_short.ogg" preload="auto"></audio>
-
     <script>
-        let timeLeft;
-        let timerId = null;
-        let isPaused = true;
+        const display = document.getElementById('display');
 
-        const display = document.getElementById('timer-display');
-        const startBtn = document.getElementById('start-btn');
-        const workInput = document.getElementById('work-input');
-        const alarm = document.getElementById('alarm-sound');
-
-        function init() {
-            timeLeft = workInput.value * 60;
-            updateDisplay();
+        function appendToDisplay(input) {
+            if (display.value === "0") display.value = input;
+            else display.value += input;
         }
 
-        function updateDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            display.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        function clearDisplay() {
+            display.value = "0";
         }
 
-        function toggleTimer() {
-            if (isPaused) {
-                isPaused = false;
-                startBtn.textContent = 'Pause';
-                startBtn.style.background = '#f59e0b';
-                
-                // Set time from input if we are starting fresh
-                if (timeLeft === undefined || timeLeft === workInput.value * 60) {
-                    timeLeft = workInput.value * 60;
-                }
+        function deleteLast() {
+            display.value = display.value.slice(0, -1);
+            if (display.value === "") display.value = "0";
+        }
 
-                timerId = setInterval(() => {
-                    timeLeft--;
-                    updateDisplay();
-                    if (timeLeft <= 0) {
-                        clearInterval(timerId);
-                        alarm.play(); // PLAY SOUND
-                        alert("Time is up! Take a break.");
-                        resetTimer();
-                    }
-                }, 1000);
-            } else {
-                clearInterval(timerId);
-                isPaused = true;
-                startBtn.textContent = 'Start';
-                startBtn.style.background = '#6366f1';
+        function calculate() {
+            try {
+                // Using a safer evaluation method
+                display.value = eval(display.value);
+            } catch (error) {
+                display.value = "Error";
+                setTimeout(clearDisplay, 1500);
             }
         }
-
-        function resetTimer() {
-            clearInterval(timerId);
-            isPaused = true;
-            timeLeft = workInput.value * 60;
-            updateDisplay();
-            startBtn.textContent = 'Start';
-            startBtn.style.background = '#6366f1';
-        }
-
-        // Initialize on load
-        init();
     </script>
 </body>
 </html>
