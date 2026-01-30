@@ -33,21 +33,33 @@ def stable_boot():
 # 2. RESEARCH TOOLS (No 12th CBSE/Class parts)
 # ==========================================
 class ResearchEngine:
-    def search(self, query, count=5):
+    def deep_search(self, query):
+        # Fallback list for results
+        results = []
+        
+        # Method A: Standard Search
         try:
             with DDGS() as ddgs:
-                return [r for r in ddgs.text(query, max_results=count)]
-        except:
-            return []
+                # We limit to 3 results to make it faster and avoid server timeouts
+                results = list(ddgs.text(query, max_results=3))
+        except Exception as e:
+            st.warning(f"Primary search link busy. Trying backup...")
+            
+            # Method B: Lite Search (Specific for server environments)
+            try:
+                with DDGS() as ddgs:
+                    # 'region' helps bypass some server blocks
+                    results = list(ddgs.text(query, region='wt-wt', max_results=2))
+            except:
+                pass
 
-def safe_math(expr):
-    """Calculates math without using 'eval' on text strings."""
-    clean = re.sub(r'[^\d\+\-\*\/\(\)\.]', '', expr)
-    try:
-        return f"🔢 **Calculation**: `{clean} = {eval(clean)}`"
-    except:
-        return None
-
+        if not results:
+            # Method C: If all fails, provide a manual research link
+            return [{"title": "Manual Search Required", 
+                     "body": "The AI is having trouble bypassing the server firewall. Click below to search manually.", 
+                     "href": f"https://duckduckgo.com/?q={query.replace(' ', '+')}"}]
+        
+        return results
 # ==========================================
 # 3. THE "VAST" UI ENGINE
 # ==========================================
