@@ -1,3 +1,5 @@
 streamlit
 nltk
 duckduckgo-search
+pandas
+beautifulsoup4
