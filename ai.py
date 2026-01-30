@@ -17,6 +17,40 @@ from bs4 import BeautifulSoup
 from duckduckgo_search import DDGS
 import PyPDF2
 import io
+import streamlit as st
+import nltk
+import os
+
+# 1. MUST be the first Streamlit command to prevent crashes
+st.set_page_config(page_title="AI Agent", layout="wide")
+
+# 2. Safe NLTK Download (Fixes the Connection Refused error)
+@st.cache_resource
+def load_nltk():
+    try:
+        # Create a local directory for NLTK data if it doesn't exist
+        nltk_data_path = os.path.join(os.getcwd(), 'nltk_data')
+        if not os.path.exists(nltk_data_path):
+            os.makedirs(nltk_data_path)
+        nltk.data.path.append(nltk_data_path)
+        
+        # Download only what is needed
+        nltk.download('punkt', download_dir=nltk_data_path)
+        nltk.download('punkt_tab', download_dir=nltk_data_path)
+        return True
+    except Exception as e:
+        st.error(f"Initialization Error: {e}")
+        return False
+
+# 3. App Logic
+if load_nltk():
+    st.title("🤖 Web-Access AI")
+    st.success("AI Engine is online and healthy!")
+    
+    query = st.text_input("What would you like me to research?")
+    if query:
+        st.write(f"Searching for: {query}...")
+        # Your search logic goes here
 
 # Install once: pip install streamlit nltk numpy duckduckgo-search beautifulsoup4 PyPDF2 requests
 
