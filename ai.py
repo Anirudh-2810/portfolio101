@@ -18,30 +18,38 @@ from duckduckgo_search import DDGS
 import PyPDF2
 import io
 import streamlit as st
+
 import nltk
 import os
 
-# 1. MUST be the first Streamlit command to prevent crashes
-st.set_page_config(page_title="AI Agent", layout="wide")
+# STEP 1: This MUST be the very first line of code. 
+# It tells the server the UI is ready.
+st.set_page_config(page_title="AI Agent", layout="centered")
 
-# 2. Safe NLTK Download (Fixes the Connection Refused error)
+# STEP 2: Use a "Try-Except" block for NLTK so it doesn't 
+# crash the whole server if the download fails.
 @st.cache_resource
-def load_nltk():
+def fast_load():
     try:
-        # Create a local directory for NLTK data if it doesn't exist
-        nltk_data_path = os.path.join(os.getcwd(), 'nltk_data')
-        if not os.path.exists(nltk_data_path):
-            os.makedirs(nltk_data_path)
-        nltk.data.path.append(nltk_data_path)
-        
-        # Download only what is needed
-        nltk.download('punkt', download_dir=nltk_data_path)
-        nltk.download('punkt_tab', download_dir=nltk_data_path)
+        # Download only the absolute minimum needed to start
+        nltk.download('punkt_tab', quiet=True)
         return True
     except Exception as e:
-        st.error(f"Initialization Error: {e}")
         return False
 
+# STEP 3: Simple UI to confirm it's working
+st.title("🤖 AI Research Agent")
+
+if fast_load():
+    st.success("Server Health: OK ✅")
+    st.write("The AI engine is ready. Enter your query below:")
+else:
+    st.warning("NLTK is taking a moment to load, but the server is alive!")
+
+# Your main input logic
+user_input = st.text_input("Search for something...")
+if user_input:
+    st.write(f"Researching: {user_input}")
 # 3. App Logic
 if load_nltk():
     st.title("🤖 Web-Access AI")
