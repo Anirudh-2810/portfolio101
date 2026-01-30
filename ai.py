@@ -19,6 +19,18 @@ from duckduckgo_search import DDGS
 import PyPDF2
 import io
 
+
+# Force something to show up immediately
+st.title("🤖 AI Agent is Online")
+st.write("Initializing brain...")
+
+# Move your downloads here
+@st.cache_resource
+def load_nltk():
+    nltk.download('punkt')
+    nltk.download('punkt_tab')
+
+load_nltk()
 # Install once: pip install streamlit nltk numpy duckduckgo-search beautifulsoup4 PyPDF2 requests
 
 try:
