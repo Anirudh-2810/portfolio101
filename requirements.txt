@@ -1,5 +1,6 @@
 streamlit
 nltk
 duckduckgo-search
-pandas
 beautifulsoup4
+PyPDF2
+requests
