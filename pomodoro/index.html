@@ -130,6 +130,20 @@ circle {
     <audio id="alarm" src="https://actions.google.com/sounds/v1/alarms/alarm_clock_short.ogg" preload="auto"></audio>
 
     <script>
+        const quotes = [
+    "Progress, not perfection.",
+    "Focus on being productive instead of busy.",
+    "Your focus determines your reality.",
+    "The secret of getting ahead is getting started.",
+    "Deep work is the superpower of the 21st century."
+];
+
+function newQuote() {
+    const quoteText = document.querySelector('.quote-text');
+    // Picks a random quote from the list
+    const randomIndex = Math.floor(Math.random() * quotes.length);
+    quoteText.textContent = quotes[randomIndex];
+}
         let time, maxTime, timer = null, paused = true;
         const display = document.getElementById('display');
         const progress = document.getElementById('dot');
@@ -145,6 +159,13 @@ circle {
         function toggle() {
             // "Unlock" sound for browsers on first click
             alarm.play(); alarm.pause(); alarm.currentTime = 0;
+        function reset() {
+    // ... your existing reset logic ...
+    newQuote(); // Changes the quote every time you hit reset
+}
+
+// Initialize on page load
+newQuote();
 
             if (paused) {
                 if (!time) {
