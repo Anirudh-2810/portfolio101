@@ -2,48 +2,87 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevPortfolio | AI & Software Engineer</title>
+    <title>Pro Focus Timer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .progress-ring { transition: stroke-dashoffset 0.35s; transform: rotate(-90deg); transform-origin: 50% 50%; }
+    </style>
 </head>
-<body class="bg-slate-900 text-white font-sans">
-
-    <header class="py-20 px-6 text-center bg-gradient-to-b from-indigo-900 to-slate-900">
-        <h1 class="text-5xl font-bold mb-4">Engineering Portfolio</h1>
-        <p class="text-xl text-slate-400">Intelligence, Productivity, and UI/UX</p>
-    </header>
-
-    <main class="max-w-6xl mx-auto py-16 px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-        
-        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-orange-500 transition">
-            <i class="fas fa-calculator text-3xl text-orange-400 mb-4"></i>
-            <h3 class="text-2xl font-bold mb-2">UX Calculator</h3>
-            <p class="text-slate-400 mb-6">A glassmorphism React calculator with keyboard support.</p>
-            <a href="./Calculator/index.html" class="bg-orange-600 px-6 py-2 rounded-lg font-bold hover:bg-orange-500">Open App</a>
+<body class="bg-slate-900 text-white flex items-center justify-center h-screen">
+    <div class="text-center p-8 bg-slate-800 rounded-3xl shadow-2xl border border-slate-700">
+        <h2 id="status" class="text-xl font-mono mb-4 text-emerald-400">FOCUS SESSION</h2>
+        <div class="relative flex items-center justify-center mb-6">
+            <svg class="w-48 h-48">
+                <circle class="text-slate-700" stroke-width="8" stroke="currentColor" fill="transparent" r="80" cx="96" cy="96"/>
+                <circle id="progress" class="text-emerald-500 progress-ring" stroke-width="8" stroke-dasharray="502.6" stroke-dashoffset="0" stroke-linecap="round" stroke="currentColor" fill="transparent" r="80" cx="96" cy="96"/>
+            </svg>
+            <div id="timer" class="absolute text-4xl font-bold tracking-widest">25:00</div>
         </div>
-
-        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-emerald-500 transition">
-            <i class="fas fa-robot text-3xl text-emerald-400 mb-4"></i>
-            <h3 class="text-2xl font-bold mb-2">Web-Access AI</h3>
-            <p class="text-slate-400 mb-6">Autonomous agent that searches the web and parses PDFs.</p>
-            <a href="https://portfolio101-eedxebbajwaz9hdoflrp3c.streamlit.app" target="_blank" class="bg-emerald-600 ...">Launch AI</a>
+        <div><p id="quoteDisplay" class="italic text-slate-400 mt-4 px-4"></p></div>
+        <div class="space-x-4">
+            <button onclick="toggleTimer()" id="startBtn" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-full font-bold transition">START</button>
+            <button onclick="reset()" class="bg-slate-700 hover:bg-slate-600 px-6 py-2 rounded-full font-bold transition">RESET</button>
         </div>
+    </div>
 
-        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-indigo-500 transition">
-            <i class="fas fa-brain text-3xl text-indigo-400 mb-4"></i>
-            <h3 class="text-2xl font-bold mb-2">NeuralEngine.py</h3>
-            <p class="text-slate-400 mb-6">Deep Learning framework built from scratch with NumPy.</p>
-            <a href="https://colab.research.google.com/drive/1vSU0nv69wQvcjQ6_zN-LZLQLg6g21Qqi?usp=sharing" target="_blank" class="bg-indigo-600 px-6 py-2 rounded-lg font-bold hover:bg-indigo-500">Run Demo</a>
-        </div>
+    <script>
+        let timeLeft = 25 * 60;
+        let timerId = null;
+        const totalTime = 25 * 60;
+        const QUOTES = [
+          "Focus is a muscle; train it every day.",
+          "Small consistent sessions beat long distracted ones.",
+           "Deep work now, freedom later.",
+            "Discipline is choosing what you want most.",
+    "One Pomodoro at a time.",
+    "Silence the noise, follow the task.",
+    "You don’t rise to your goals, you fall to your systems.",
+    "Future you is grateful for this focus.",
+    "Less scrolling, more solving.",
+    "Progress, not perfection.
+    // ... add the rest of your quotes here
+];
 
-        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-cyan-500 transition">
-            <i class="fas fa-clock text-3xl text-cyan-400 mb-4"></i>
-            <h3 class="text-2xl font-bold mb-2">Flight Productivity</h3>
-            <p class="text-slate-400 mb-6">Desktop Pomodoro tool with motivational quotes.</p>
-            <a href="https://github.com" class="text-cyan-400 font-bold hover:underline">View Source Code →</a>
-        </div>
+        function updateDisplay() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            document.getElementById('timer').textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            
+            // Update circular progress bar
+            const offset = 502.6 - (timeLeft / totalTime) * 502.6;
+            document.getElementById('progress').style.strokeDashoffset = offset;
+        }
 
-    </main>
+        function updateQuote() {
+             const randomQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+             document.getElementById('quoteDisplay').innerText = randomQuote;
+        }
+// Call this inside your toggleTimer function!
+        function toggleTimer() {
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+                document.getElementById('startBtn').textContent = 'START';
+            } else {
+                document.getElementById('startBtn').textContent = 'PAUSE';
+                timerId = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerId);
+                        alert("Time's up! Take a break.");
+                    }
+                }, 1000);
+            }
+        }
+
+        function reset() {
+            clearInterval(timerId);
+            timerId = null;
+            timeLeft = 25 * 60;
+            updateDisplay();
+            document.getElementById('startBtn').textContent = 'START';
+        }
+    </script>
 </body>
 </html>
