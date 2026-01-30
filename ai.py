@@ -2,7 +2,8 @@
 🧠 WEB-ACCESS SUPER AI - Live Google Search + APIs + PDFs
 Searches web AUTOMATICALLY when needed (95% → 99% accuracy)
 """
-
+import nltk
+nltk.download('punkt_tab')
 import numpy as np
 import nltk
 import random
