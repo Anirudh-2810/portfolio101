@@ -2,115 +2,87 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Black Calc</title>
+    <title>Nexus Advanced Calc</title>
     <style>
-        body {
-            background-color: #000000; /* Pure Black Background */
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .calc-container {
-            background: #111111;
-            padding: 20px;
-            border-radius: 20px;
-            border: 1px solid #333;
-            box-shadow: 0 20px 50px rgba(0,0,0,1);
-            width: 320px;
-        }
-        #display {
-            width: 100%;
-            height: 60px;
-            background: transparent;
-            border: none;
-            color: #10b981; /* Neon Green Text */
-            font-size: 2rem;
-            text-align: right;
-            margin-bottom: 20px;
-            outline: none;
-        }
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-        button {
-            height: 60px;
-            border-radius: 12px;
-            border: none;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            background: #222;
-            color: white;
-        }
-        button:hover { background: #333; }
-        .operator { background: #312e81; color: #818cf8; }
-        .equals { background: #10b981; color: white; grid-column: span 2; }
-        .clear { background: #ef4444; color: white; }
+        body { background-color: #000; color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .calc-card { background: #111; padding: 25px; border-radius: 25px; width: 340px; border: 1px solid #222; box-shadow: 0 0 40px rgba(0,0,0,1); }
+        #display { width: 100%; height: 70px; background: transparent; border: none; color: #10b981; font-size: 2.2rem; text-align: right; margin-bottom: 20px; outline: none; font-family: monospace; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        button { height: 60px; border-radius: 15px; border: none; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: 0.2s; background: #1a1a1a; color: white; }
+        button:hover { background: #222; transform: translateY(-2px); }
+        .op { background: #1e1b4b; color: #818cf8; } /* Indigo for math ops */
+        .special { background: #064e3b; color: #34d399; } /* Emerald for roots/sum */
+        .eq { background: #10b981; color: white; grid-column: span 2; }
+        .clear { background: #450a0a; color: #f87171; }
     </style>
 </head>
 <body>
 
-    <div class="calc-container">
+    <div class="calc-card">
         <input type="text" id="display" disabled value="0">
-        <div class="buttons">
-            <button class="clear" onclick="clearDisplay()">C</button>
-            <button class="operator" onclick="appendToDisplay('/')">/</button>
-            <button class="operator" onclick="appendToDisplay('*')">×</button>
-            <button class="operator" onclick="deleteLast()">⌫</button>
-            
-            <button onclick="appendToDisplay('7')">7</button>
-            <button onclick="appendToDisplay('8')">8</button>
-            <button onclick="appendToDisplay('9')">9</button>
-            <button class="operator" onclick="appendToDisplay('-')">-</button>
-            
-            <button onclick="appendToDisplay('4')">4</button>
-            <button onclick="appendToDisplay('5')">5</button>
-            <button onclick="appendToDisplay('6')">6</button>
-            <button class="operator" onclick="appendToDisplay('+')">+</button>
-            
-            <button onclick="appendToDisplay('1')">1</button>
-            <button onclick="appendToDisplay('2')">2</button>
-            <button onclick="appendToDisplay('3')">3</button>
-            <button onclick="calculate()">=</button>
-            
-            <button onclick="appendToDisplay('0')" style="grid-column: span 2;">0</button>
-            <button onclick="appendToDisplay('.')">.</button>
-            <button class="equals" onclick="calculate()">=</button>
+        <div class="grid">
+            <button class="clear" onclick="clr()">C</button>
+            <button class="special" onclick="root(2)">√</button>
+            <button class="special" onclick="root(3)">∛</button>
+            <button class="special" onclick="summation()">Σ</button>
+
+            <button onclick="add('7')">7</button>
+            <button onclick="add('8')">8</button>
+            <button onclick="add('9')">9</button>
+            <button class="op" onclick="add('/')">÷</button>
+
+            <button onclick="add('4')">4</button>
+            <button onclick="add('5')">5</button>
+            <button onclick="add('6')">6</button>
+            <button class="op" onclick="add('*')">×</button>
+
+            <button onclick="add('1')">1</button>
+            <button onclick="add('2')">2</button>
+            <button onclick="add('3')">3</button>
+            <button class="op" onclick="add('-')">-</button>
+
+            <button onclick="add('0')">0</button>
+            <button onclick="add('.')">.</button>
+            <button class="op" onclick="add('+')">+</button>
+            <button class="eq" onclick="solve()">=</button>
         </div>
     </div>
 
     <script>
-        const display = document.getElementById('display');
+        const view = document.getElementById('display');
 
-        function appendToDisplay(input) {
-            if (display.value === "0") display.value = input;
-            else display.value += input;
+        function add(v) {
+            if (view.value === "0" || view.value === "Error") view.value = v;
+            else view.value += v;
         }
 
-        function clearDisplay() {
-            display.value = "0";
-        }
+        function clr() { view.value = "0"; }
 
-        function deleteLast() {
-            display.value = display.value.slice(0, -1);
-            if (display.value === "") display.value = "0";
-        }
-
-        function calculate() {
+        // Square and Cube Root Logic
+        function root(n) {
             try {
-                // Using a safer evaluation method
-                display.value = eval(display.value);
-            } catch (error) {
-                display.value = "Error";
-                setTimeout(clearDisplay, 1500);
+                let val = eval(view.value);
+                view.value = Math.pow(val, 1/n).toFixed(4);
+            } catch { view.value = "Error"; }
+        }
+
+        // Summation Logic (Σ): Adds all numbers currently in the display
+        // Example: If display shows 5+5+10, it returns 20
+        function summation() {
+            try {
+                let parts = view.value.split('+').map(Number);
+                let total = parts.reduce((a, b) => a + b, 0);
+                view.value = total;
+            } catch { view.value = "Error"; }
+        }
+
+        function solve() {
+            try {
+                // Using eval for basic arithmetic logic
+                view.value = eval(view.value);
+            } catch {
+                view.value = "Error";
+                setTimeout(clr, 1000);
             }
         }
     </script>
