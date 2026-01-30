@@ -3,188 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UX Calculator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Nexus Pomodoro</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Consolas&family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'Consolas', monospace; }
-        .btn-active { transform: scale(0.95); }
+        body {
+            background-color: #0f172a;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .timer-container {
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 300px;
+        }
+        #timer-display {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #10b981;
+        }
+        .controls input {
+            width: 60px;
+            background: #334155;
+            border: none;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .start { background: #6366f1; color: white; }
+        .reset { background: #ef4444; color: white; }
+        button:hover { opacity: 0.8; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen flex items-center justify-center p-4">
+<body>
 
-    <div class="w-full max-w-md">
-        <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl p-6 border border-slate-700">
-            
-            <div id="history-container" class="mb-4 space-y-1 h-20 overflow-hidden flex flex-col justify-end">
-                </div>
-
-            <div class="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-6 mb-6 border border-slate-600">
-                <div id="previous-display" class="text-slate-400 text-sm mb-1 h-6 font-mono text-right"></div>
-                <div id="main-display" class="text-white text-right text-4xl font-bold break-all">0</div>
+    <div class="timer-container">
+        <h2>⏱️ Pomodoro</h2>
+        
+        <div class="controls">
+            <div>
+                Work: <input type="number" id="work-input" value="25"> min
             </div>
-
-            <div class="grid grid-cols-4 gap-3">
-                <button onclick="handleClear()" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg shadow-red-500/30 active:scale-95">AC</button>
-                <button onclick="handleBackspace()" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white active:scale-95"><i class="fa-solid fa-delete-left"></i></button>
-                <button onclick="handleToggleSign()" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white active:scale-95">+/-</button>
-                <button onclick="handleOperator('/')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/30 active:scale-95">÷</button>
-
-                <button onclick="handleNumber('7')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white active:scale-95">7</button>
-                <button onclick="handleNumber('8')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white active:scale-95">8</button>
-                <button onclick="handleNumber('9')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white active:scale-95">9</button>
-                <button onclick="handleOperator('*')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/30 active:scale-95">×</button>
-
-                <button onclick="handleNumber('4')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white active:scale-95">4</button>
-                <button onclick="handleNumber('5')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white active:scale-95">5</button>
-                <button onclick="handleNumber('6')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white active:scale-95">6</button>
-                <button onclick="handleOperator('-')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/30 active:scale-95">−</button>
-
-                <button onclick="handleNumber('1')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white active:scale-95">1</button>
-                <button onclick="handleNumber('2')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white active:scale-95">2</button>
-                <button onclick="handleNumber('3')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white active:scale-95">3</button>
-                <button onclick="handleOperator('+')" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/30 active:scale-95">+</button>
-
-                <button onclick="handleNumber('0')" class="col-span-2 h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white active:scale-95">0</button>
-                <button onclick="handleDecimal()" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white active:scale-95">.</button>
-                <button onclick="handleEquals()" class="h-16 rounded-xl font-semibold text-lg transition-all bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg shadow-green-500/30 active:scale-95">=</button>
+            <div style="margin-top: 10px;">
+                Break: <input type="number" id="break-input" value="5"> min
             </div>
+        </div>
 
-            <div class="mt-4 text-center text-slate-500 text-xs">
-                Keyboard supported: Numbers, operators, Enter, Escape, Backspace
-            </div>
+        <div id="timer-display">25:00</div>
+
+        <div class="buttons">
+            <button class="start" id="start-btn" onclick="toggleTimer()">Start</button>
+            <button class="reset" onclick="resetTimer()">Reset</button>
         </div>
     </div>
 
+    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock_short.ogg" preload="auto"></audio>
+
     <script>
-        let displayValue = '0';
-        let previousValue = '';
-        let currentOperator = '';
-        let isNewNumber = true;
-        let history = [];
+        let timeLeft;
+        let timerId = null;
+        let isPaused = true;
 
-        const mainDisplay = document.getElementById('main-display');
-        const prevDisplay = document.getElementById('previous-display');
-        const historyContainer = document.getElementById('history-container');
+        const display = document.getElementById('timer-display');
+        const startBtn = document.getElementById('start-btn');
+        const workInput = document.getElementById('work-input');
+        const alarm = document.getElementById('alarm-sound');
 
-        function updateUI() {
-            mainDisplay.innerText = displayValue;
-            prevDisplay.innerText = (previousValue && currentOperator) ? `${previousValue} ${currentOperator}` : '';
-            
-            // Update History
-            historyContainer.innerHTML = '';
-            history.forEach((calc, i) => {
-                const div = document.createElement('div');
-                div.className = "text-slate-400 text-xs font-mono text-right";
-                div.style.opacity = 0.6 - (i * 0.15);
-                div.innerText = calc;
-                historyContainer.appendChild(div);
-            });
+        function init() {
+            timeLeft = workInput.value * 60;
+            updateDisplay();
         }
 
-        function handleNumber(num) {
-            if (isNewNumber) {
-                displayValue = num;
-                isNewNumber = false;
-            } else {
-                displayValue = displayValue === '0' ? num : displayValue + num;
-            }
-            updateUI();
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            display.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         }
 
-        function handleDecimal() {
-            if (isNewNumber) {
-                displayValue = '0.';
-                isNewNumber = false;
-            } else if (!displayValue.includes('.')) {
-                displayValue += '.';
-            }
-            updateUI();
-        }
+        function toggleTimer() {
+            if (isPaused) {
+                isPaused = false;
+                startBtn.textContent = 'Pause';
+                startBtn.style.background = '#f59e0b';
+                
+                // Set time from input if we are starting fresh
+                if (timeLeft === undefined || timeLeft === workInput.value * 60) {
+                    timeLeft = workInput.value * 60;
+                }
 
-        function handleOperator(op) {
-            if (previousValue && currentOperator && !isNewNumber) {
-                handleEquals();
-            }
-            previousValue = displayValue;
-            currentOperator = op;
-            isNewNumber = true;
-            updateUI();
-        }
-
-        function handleEquals() {
-            if (!previousValue || !currentOperator) return;
-
-            const prev = parseFloat(previousValue);
-            const curr = parseFloat(displayValue);
-            let result;
-
-            switch (currentOperator) {
-                case '+': result = prev + curr; break;
-                case '-': result = prev - curr; break;
-                case '*': result = prev * curr; break;
-                case '/': 
-                    if (curr === 0) {
-                        displayValue = 'Error';
-                        resetState();
-                        updateUI();
-                        return;
+                timerId = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerId);
+                        alarm.play(); // PLAY SOUND
+                        alert("Time is up! Take a break.");
+                        resetTimer();
                     }
-                    result = prev / curr; 
-                    break;
-                default: return;
-            }
-
-            history.unshift(`${prev} ${currentOperator} ${curr} = ${result}`);
-            history = history.slice(0, 5);
-            displayValue = result.toString();
-            resetState();
-            updateUI();
-        }
-
-        function resetState() {
-            previousValue = '';
-            currentOperator = '';
-            isNewNumber = true;
-        }
-
-        function handleClear() {
-            displayValue = '0';
-            resetState();
-            updateUI();
-        }
-
-        function handleBackspace() {
-            if (displayValue.length === 1 || displayValue === '0') {
-                displayValue = '0';
+                }, 1000);
             } else {
-                displayValue = displayValue.slice(0, -1);
+                clearInterval(timerId);
+                isPaused = true;
+                startBtn.textContent = 'Start';
+                startBtn.style.background = '#6366f1';
             }
-            updateUI();
         }
 
-        function handleToggleSign() {
-            displayValue = (parseFloat(displayValue) * -1).toString();
-            updateUI();
+        function resetTimer() {
+            clearInterval(timerId);
+            isPaused = true;
+            timeLeft = workInput.value * 60;
+            updateDisplay();
+            startBtn.textContent = 'Start';
+            startBtn.style.background = '#6366f1';
         }
 
-        // Keyboard Support
-        window.addEventListener('keydown', (e) => {
-            if (e.key >= '0' && e.key <= '9') handleNumber(e.key);
-            else if (e.key === '.') handleDecimal();
-            else if (e.key === '+') handleOperator('+');
-            else if (e.key === '-') handleOperator('-');
-            else if (e.key === '*') handleOperator('*');
-            else if (e.key === '/') handleOperator('/');
-            else if (e.key === 'Enter' || e.key === '=') handleEquals();
-            else if (e.key === 'Escape') handleClear();
-            else if (e.key === 'Backspace') handleBackspace();
-        });
-
-        updateUI();
+        // Initialize on load
+        init();
     </script>
 </body>
 </html>
-
