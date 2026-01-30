@@ -2,25 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Quote Pomodoro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevPortfolio | AI & Software Engineer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&display=swap');
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .progress-ring { transition: stroke-dashoffset 0.5s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-black text-white flex items-center justify-center h-screen">
-    <div class="text-center p-10 bg-zinc-900 rounded-3xl shadow-2xl border border-zinc-800 w-96">
-        <h2 class="text-xs tracking-[0.3em] font-bold mb-1 text-cyan-400">POMODORO</h2>
-        <p id="phase" class="text-zinc-500 text-sm mb-6 uppercase tracking-widest">Focus</p>
+<body class="bg-slate-900 text-white font-sans">
+
+    <header class="py-20 px-6 text-center bg-gradient-to-b from-indigo-900 to-slate-900">
+        <h1 class="text-5xl font-bold mb-4">Engineering Portfolio</h1>
+        <p class="text-xl text-slate-400">Intelligence, Productivity, and UI/UX</p>
+    </header>
+
+    <main class="max-w-6xl mx-auto py-16 px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        <div class="relative flex items-center justify-center mb-8">
-            <svg class="w-56 h-56">
-                <circle class="text-zinc-800" stroke-width="6" stroke="currentColor" fill="transparent" r="90" cx="112" cy="112"/>
-                <circle id="progress" class="text-emerald-400 progress-ring" stroke-width="6" stroke-dasharray="565.5" stroke-dashoffset="0" stroke-linecap="round" stroke="currentColor" fill="transparent" r="90" cx="112" cy="112"/>
-            </svg>
-            <div id="timerDisplay" class="absolute text-5xl font-mono font-bold text-emerald-400">25:00</div>
         <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-orange-500 transition">
             <i class="fas fa-calculator text-3xl text-orange-400 mb-4"></i>
             <h3 class="text-2xl font-bold mb-2">UX Calculator</h3>
@@ -28,17 +23,28 @@
             <a href="./calculator/index.html" class="bg-orange-600 px-6 py-2 rounded-lg font-bold hover:bg-orange-500">Open App</a>
         </div>
 
-        <div class="min-h-[80px] mb-8">
-            <p class="text-zinc-500 text-[10px] font-bold uppercase mb-2">Focus Quote</p>
-            <p id="quoteDisplay" class="text-sm px-4 leading-relaxed">Loading focus...</p>
+        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-emerald-500 transition">
+            <i class="fas fa-robot text-3xl text-emerald-400 mb-4"></i>
+            <h3 class="text-2xl font-bold mb-2">Web-Access AI</h3>
+            <p class="text-slate-400 mb-6">Autonomous agent that searches the web and parses PDFs.</p>
+            <a href="" target="_blank" class="bg-emerald-600 px-6 py-2 rounded-lg font-bold hover:bg-emerald-500">Launch AI</a>
         </div>
 
-        <div class="flex gap-3 justify-center">
-            <button onclick="toggleTimer()" id="startBtn" class="bg-zinc-100 text-black px-8 py-2 rounded-full font-bold hover:bg-white transition">Start</button>
-            <button onclick="reset()" class="bg-zinc-800 text-white px-8 py-2 rounded-full font-bold hover:bg-zinc-700 transition">Reset</button>
+        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-indigo-500 transition">
+            <i class="fas fa-brain text-3xl text-indigo-400 mb-4"></i>
+            <h3 class="text-2xl font-bold mb-2">NeuralEngine.py</h3>
+            <p class="text-slate-400 mb-6">Deep Learning framework built from scratch with NumPy.</p>
+            <a href="https://colab.research.google.com/drive/1vSU0nv69wQvcjQ6_zN-LZLQLg6g21Qqi?usp=sharing" target="_blank" class="bg-indigo-600 px-6 py-2 rounded-lg font-bold hover:bg-indigo-500">Run Demo</a>
         </div>
-    </div>
 
+        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-cyan-500 transition">
+            <i class="fas fa-clock text-3xl text-cyan-400 mb-4"></i>
+            <h3 class="text-2xl font-bold mb-2">Flight Productivity</h3>
+            <p class="text-slate-400 mb-6">Desktop Pomodoro tool with motivational quotes.</p>
+            <a href="./pomodoro/index.html" class="text-cyan-400 font-bold hover:underline">View Source Code →</a>
+        </div>
 
+    </main>
 </body>
 </html>
+
