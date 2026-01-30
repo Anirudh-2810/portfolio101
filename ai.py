@@ -23,7 +23,29 @@ try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
     nltk.download('punkt')
+import streamlit as st
+import nltk
 
+# 1. Page config must be the FIRST streamlit command
+st.set_page_config(page_title="AI Agent")
+
+# 2. Download NLTK data quietly in the background
+@st.cache_resource
+def load_data():
+    try:
+        nltk.download('punkt')
+        nltk.download('punkt_tab')
+        return True
+    except:
+        return False
+
+if load_data():
+    st.success("AI Brain Loaded!")
+else:
+    st.error("NLTK Download Failed.")
+
+st.title("🤖 Web-Access AI")
+# ... rest of your code ...
 
 
 
