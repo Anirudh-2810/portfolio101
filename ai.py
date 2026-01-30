@@ -24,18 +24,8 @@ try:
 except LookupError:
     nltk.download('punkt')
 
-# Force something to show up immediately
-st.title("🤖 AI Agent is Online")
-st.write("Initializing brain...")
 
-# Move your downloads here
-import streamlit as st
-import nltk
 
-@st.cache_resource
-def init_nltk():
-    nltk.download('punkt')
-    nltk.download('punkt_tab')
 
 init_nltk()
 load_nltk()
