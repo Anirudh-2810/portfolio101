@@ -39,20 +39,29 @@ def safe_math(expr):
         return None
 
 class ResearchEngine:
-    def __init__(self):
-        self.cache = {}
-    
-    def search_web(self, query, max_results=5):
-        """Standard search with timeout to avoid 'Can't reach web' errors."""
+    def search_web(self, query, max_results=3):
+        results = []
+        
+        # Strategy A: Standard text search
         try:
             with DDGS() as ddgs:
-                # Limit results to improve speed and stability on cloud servers
                 results = list(ddgs.text(query, max_results=max_results))
-            return results
-        except Exception as e:
-            # Fallback if the search engine is being rate-limited
-            return [{"title": "Connection Busy", "body": "The web server is currently rate-limiting requests. Try again in 30 seconds.", "href": "#"}]
+                if results: return results
+        except Exception:
+            pass # Move to next strategy if blocked
 
+        # Strategy B: News-based search (Often bypasses standard blocks)
+        try:
+            with DDGS() as ddgs:
+                results = list(ddgs.news(query, max_results=max_results))
+                if results: return results
+        except Exception:
+            pass
+
+        # Strategy C: If all fail, return a clickable help link
+        return [{"title": "Search engine is currently busy", 
+                 "body": "The AI is being rate-limited by the server. Please wait 60 seconds or try a different topic.", 
+                 "href": f"https://duckduckgo.com/?q={query.replace(' ', '+')}"}]
 # ==========================================
 # 3. AI BRAIN LOGIC
 # ==========================================
