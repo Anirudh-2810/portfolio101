@@ -2,10 +2,9 @@
 🧠 WEB-ACCESS SUPER AI - Live Google Search + APIs + PDFs
 Searches web AUTOMATICALLY when needed (95% → 99% accuracy)
 """
-import nltk
-nltk.download('punkt_tab')
-import numpy as np
 
+import numpy as np
+import nltk
 import random
 import re
 import streamlit as st
@@ -18,39 +17,7 @@ from bs4 import BeautifulSoup
 from duckduckgo_search import DDGS
 import PyPDF2
 import io
-import nltk
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
-import streamlit as st
-import nltk
 
-# 1. Page config must be the FIRST streamlit command
-st.set_page_config(page_title="AI Agent")
-
-# 2. Download NLTK data quietly in the background
-@st.cache_resource
-def load_data():
-    try:
-        nltk.download('punkt')
-        nltk.download('punkt_tab')
-        return True
-    except:
-        return False
-
-if load_data():
-    st.success("AI Brain Loaded!")
-else:
-    st.error("NLTK Download Failed.")
-
-st.title("🤖 Web-Access AI")
-# ... rest of your code ...
-
-
-
-init_nltk()
-load_nltk()
 # Install once: pip install streamlit nltk numpy duckduckgo-search beautifulsoup4 PyPDF2 requests
 
 try:
