@@ -21,11 +21,6 @@
                 <circle id="progress" class="text-emerald-400 progress-ring" stroke-width="6" stroke-dasharray="565.5" stroke-dashoffset="0" stroke-linecap="round" stroke="currentColor" fill="transparent" r="90" cx="112" cy="112"/>
             </svg>
             <div id="timerDisplay" class="absolute text-5xl font-mono font-bold text-emerald-400">25:00</div>
-        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-orange-500 transition">
-            <i class="fas fa-calculator text-3xl text-orange-400 mb-4"></i>
-            <h3 class="text-2xl font-bold mb-2">UX Calculator</h3>
-            <p class="text-slate-400 mb-6">A glassmorphism React calculator with keyboard support.</p>
-            <a href="./calculator/index.html" class="bg-orange-600 px-6 py-2 rounded-lg font-bold hover:bg-orange-500">Open App</a>
         </div>
 
         <div class="min-h-[80px] mb-8">
@@ -40,6 +35,75 @@
     </div>
 
     <script>
+        const QUOTES = [
+            "Focus is a muscle; train it every day.",
+            "Small consistent sessions beat long distracted ones.",
+            "Deep work now, freedom later.",
+            "Discipline is choosing what you want most.",
+            "One Pomodoro at a time.",
+            "Silence the noise, follow the task.",
+            "You don’t rise to your goals, you fall to your systems.",
+            "Future you is grateful for this focus.",
+            "Less scrolling, more solving.",
+            "Progress, not perfection."
+        ];
+
+        let timeLeft = 25 * 60;
+        let totalTime = 25 * 60;
+        let timerId = null;
+
+        const timerDisplay = document.getElementById('timerDisplay');
+        const progressCircle = document.getElementById('progress');
+        const quoteDisplay = document.getElementById('quoteDisplay');
+        const startBtn = document.getElementById('startBtn');
+
+        function updateDisplay() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            // Update progress circle (Circumference is ~565.5)
+            const offset = 565.5 - (timeLeft / totalTime) * 565.5;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        function newQuote() {
+            quoteDisplay.innerText = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+        }
+
+        function toggleTimer() {
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+                startBtn.textContent = 'Resume';
+            } else {
+                if (timeLeft === totalTime) newQuote();
+                startBtn.textContent = 'Pause';
+                timerId = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerId);
+                        alert("Pomodoro complete! Take a break.");
+                        reset();
+                    }
+                }, 1000);
+            }
+        }
+
+        function reset() {
+            clearInterval(timerId);
+            timerId = null;
+            timeLeft = 25 * 60;
+            updateDisplay();
+            startBtn.textContent = 'Start';
+            newQuote();
+        }
+
+        // Initialize
+        updateDisplay();
+        newQuote();
     </script>
 </body>
+</html>
 </html>
