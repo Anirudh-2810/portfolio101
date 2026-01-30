@@ -4,6 +4,74 @@
     <meta charset="UTF-8">
     <title>Nexus Pomodoro</title>
     <style>
+        body { 
+    background-color: #000; 
+    color: white; 
+    font-family: 'Inter', sans-serif; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    margin: 0; 
+}
+
+.card { 
+    background: #111; 
+    padding: 40px; 
+    border-radius: 30px; 
+    text-align: center; 
+    width: 350px; 
+    border: 1px solid #222; 
+}
+
+/* FIX: The Container for the Glow */
+.timer-circle { 
+    position: relative; 
+    width: 240px; /* Slightly larger than the SVG */
+    height: 240px; 
+    margin: 0 auto; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+/* FIX: Prevent Light Leak */
+svg { 
+    transform: rotate(-90deg); 
+    width: 220px; 
+    height: 220px; 
+    overflow: visible; /* CRITICAL: Stops the box from cutting the glow */
+} 
+
+circle { 
+    fill: none; 
+    stroke-width: 8; 
+    stroke-linecap: round; 
+}
+
+.bg { 
+    stroke: #1a1a1a; 
+}
+
+/* FIX: The Neon Shader */
+.progress { 
+    stroke: #10b981; 
+    stroke-dasharray: 565; 
+    stroke-dashoffset: 0; 
+    transition: stroke-dashoffset 1s linear; 
+    /* drop-shadow follows the circle path exactly, preventing messy leaks */
+    filter: drop-shadow(0 0 10px #10b981); 
+}
+
+.time-text { 
+    position: absolute; 
+    font-size: 3.5rem; 
+    font-weight: bold; 
+    color: #10b981; 
+    font-family: 'Courier New', monospace; 
+    /* Add a glow to the text to match the ring */
+    text-shadow: 0 0 15px rgba(16, 185, 129, 0.4); 
+}
         body { background-color: #000; color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
         .card { background: #111; padding: 40px; border-radius: 30px; text-align: center; width: 350px; border: 1px solid #222; }
         .title { color: #22d3ee; letter-spacing: 5px; font-size: 0.8rem; margin-bottom: 5px; }
@@ -35,7 +103,7 @@
     </style>
 </head>
 <body>
-
+                     
     <div class="card">
         <div class="title">POMODORO</div>
         <div class="subtitle">SYSTEM ACTIVE</div>
