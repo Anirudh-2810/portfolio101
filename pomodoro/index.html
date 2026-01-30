@@ -2,145 +2,113 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Pomodoro</title>
     <style>
-        body {
-            background-color: #0f172a;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .timer-container {
-            background: #1e293b;
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
-            width: 300px;
-        }
-        #timer-display {
-            font-size: 4rem;
-            font-weight: bold;
-            margin: 20px 0;
-            color: #10b981;
-        }
-        .controls input {
-            width: 60px;
-            background: #334155;
-            border: none;
-            color: white;
-            padding: 5px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .buttons {
-            margin-top: 20px;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        .start { background: #6366f1; color: white; }
-        .reset { background: #ef4444; color: white; }
-        button:hover { opacity: 0.8; }
+        body { background-color: #000; color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #111; padding: 40px; border-radius: 30px; text-align: center; width: 350px; border: 1px solid #222; }
+        .title { color: #22d3ee; letter-spacing: 5px; font-size: 0.8rem; margin-bottom: 5px; }
+        .subtitle { color: #666; font-size: 0.7rem; margin-bottom: 30px; }
+        
+        /* The Glow Ring */
+        .timer-circle { position: relative; width: 200px; height: 200px; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
+        svg { transform: rotate(-90deg); width: 200px; height: 200px; }
+        circle { fill: none; stroke-width: 6; stroke-linecap: round; }
+        .bg { stroke: #222; }
+        .progress { stroke: #10b981; stroke-dasharray: 565; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; filter: drop-shadow(0 0 8px #10b981); }
+        
+        .time-text { position: absolute; font-size: 3.5rem; font-weight: bold; color: #10b981; font-family: monospace; }
+        
+        .quote-box { margin-top: 40px; }
+        .quote-label { color: #666; font-size: 0.6rem; letter-spacing: 2px; }
+        .quote-text { margin-top: 10px; font-size: 0.9rem; }
+
+        .btn-group { margin-top: 40px; display: flex; justify-content: center; gap: 15px; }
+        button { padding: 12px 35px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .start { background: white; color: black; }
+        .reset { background: #222; color: white; }
+        
+        /* Settings for changing time */
+        .settings { margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; font-size: 0.7rem; color: #444; }
+        input { background: transparent; border: 1px solid #333; color: white; width: 40px; text-align: center; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-    <div class="timer-container">
-        <h2>⏱️ Pomodoro</h2>
-        
-        <div class="controls">
-            <div>
-                Work: <input type="number" id="work-input" value="25"> min
-            </div>
-            <div style="margin-top: 10px;">
-                Break: <input type="number" id="break-input" value="5"> min
-            </div>
+    <div class="card">
+        <div class="title">POMODORO</div>
+        <div class="subtitle">FOCUS</div>
+
+        <div class="settings">
+            WORK: <input type="number" id="workIn" value="25"> MIN
+            BREAK: <input type="number" id="breakIn" value="5"> MIN
         </div>
 
-        <div id="timer-display">25:00</div>
+        <div class="timer-circle">
+            <svg>
+                <circle class="bg" cx="100" cy="100" r="90"></circle>
+                <circle id="dot" class="progress" cx="100" cy="100" r="90"></circle>
+            </svg>
+            <div class="time-text" id="display">25:00</div>
+        </div>
 
-        <div class="buttons">
-            <button class="start" id="start-btn" onclick="toggleTimer()">Start</button>
-            <button class="reset" onclick="resetTimer()">Reset</button>
+        <div class="quote-box">
+            <div class="quote-label">FOCUS QUOTE</div>
+            <div class="quote-text">Progress, not perfection.</div>
+        </div>
+
+        <div class="btn-group">
+            <button class="start" id="ctrl" onclick="toggle()">Start</button>
+            <button class="reset" onclick="reset()">Reset</button>
         </div>
     </div>
 
-    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock_short.ogg" preload="auto"></audio>
+    <audio id="alarm" src="https://actions.google.com/sounds/v1/alarms/alarm_clock_short.ogg"></audio>
 
     <script>
-        let timeLeft;
-        let timerId = null;
-        let isPaused = true;
+        let time, maxTime, timer = null, paused = true;
+        const display = document.getElementById('display');
+        const progress = document.getElementById('dot');
+        const alarm = document.getElementById('alarm');
 
-        const display = document.getElementById('timer-display');
-        const startBtn = document.getElementById('start-btn');
-        const workInput = document.getElementById('work-input');
-        const alarm = document.getElementById('alarm-sound');
-
-        function init() {
-            timeLeft = workInput.value * 60;
-            updateDisplay();
+        function update() {
+            const m = Math.floor(time / 60), s = time % 60;
+            display.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+            const offset = 565 - (565 * time) / maxTime;
+            progress.style.strokeDashoffset = offset;
         }
 
-        function updateDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            display.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        }
-
-        function toggleTimer() {
-            if (isPaused) {
-                isPaused = false;
-                startBtn.textContent = 'Pause';
-                startBtn.style.background = '#f59e0b';
-                
-                // Set time from input if we are starting fresh
-                if (timeLeft === undefined || timeLeft === workInput.value * 60) {
-                    timeLeft = workInput.value * 60;
+        function toggle() {
+            if (paused) {
+                if (!time) {
+                    time = document.getElementById('workIn').value * 60;
+                    maxTime = time;
                 }
-
-                timerId = setInterval(() => {
-                    timeLeft--;
-                    updateDisplay();
-                    if (timeLeft <= 0) {
-                        clearInterval(timerId);
-                        alarm.play(); // PLAY SOUND
-                        alert("Time is up! Take a break.");
-                        resetTimer();
+                paused = false;
+                document.getElementById('ctrl').textContent = "Pause";
+                timer = setInterval(() => {
+                    time--; update();
+                    if (time <= 0) {
+                        clearInterval(timer);
+                        alarm.play(); // SOUND TRIGGER
+                        alert("Time's up!");
+                        reset();
                     }
                 }, 1000);
             } else {
-                clearInterval(timerId);
-                isPaused = true;
-                startBtn.textContent = 'Start';
-                startBtn.style.background = '#6366f1';
+                clearInterval(timer);
+                paused = true;
+                document.getElementById('ctrl').textContent = "Start";
             }
         }
 
-        function resetTimer() {
-            clearInterval(timerId);
-            isPaused = true;
-            timeLeft = workInput.value * 60;
-            updateDisplay();
-            startBtn.textContent = 'Start';
-            startBtn.style.background = '#6366f1';
+        function reset() {
+            clearInterval(timer); paused = true;
+            time = document.getElementById('workIn').value * 60;
+            maxTime = time;
+            document.getElementById('ctrl').textContent = "Start";
+            update();
         }
-
-        // Initialize on load
-        init();
+        reset();
     </script>
 </body>
 </html>
