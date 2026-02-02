@@ -3,59 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus | Flight Productivity</title>
+    <title>Nexus | Performance Timer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0b0f1a; color: white; overflow: hidden; }
-        .glass {
-            background: rgba(22, 27, 34, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(34, 211, 238, 0.2);
+        body { background-color: #0b0f1a; color: white; font-family: 'Inter', sans-serif; }
+        .nexus-surface {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .progress-ring__circle {
-            transition: stroke-dashoffset 0.35s;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-            stroke: #22d3ee;
-            filter: drop-shadow(0 0 8px #22d3ee);
+        #progress-line {
+            transition: width 1s linear;
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
         }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6">
 
-    <div class="glass p-10 rounded-[3rem] text-center max-w-sm w-full shadow-2xl">
-        <h2 class="text-xs uppercase tracking-[0.3em] text-cyan-500 mb-8">Neural Focus Mode</h2>
-        
-        <div class="relative flex items-center justify-center mb-8">
-            <svg class="w-64 h-64">
-                <circle class="text-slate-800" stroke-width="8" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"/>
-                <circle id="progress" class="progress-ring__circle" stroke-width="8" stroke-dasharray="753.98" stroke-dashoffset="0" stroke-linecap="round" fill="transparent" r="120" cx="128" cy="128"/>
-            </svg>
-            <div id="display" class="absolute text-6xl font-black tracking-tighter">25:00</div>
+    <div class="nexus-surface rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden relative">
+        <div class="w-full h-1.5 bg-slate-900">
+            <div id="progress-line" class="h-full bg-cyan-500" style="width: 100%"></div>
         </div>
 
-        <div class="flex gap-4">
-            <button id="startBtn" onclick="toggleTimer()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 py-4 rounded-2xl font-bold transition">START</button>
-            <button onclick="reset()" class="flex-1 border border-slate-700 hover:bg-slate-800 py-4 rounded-2xl font-bold transition">RESET</button>
+        <div class="p-10 text-center">
+            <div class="flex items-center justify-center gap-4 mb-8">
+                <button onclick="adjustTime(-5)" class="text-slate-500 hover:text-white transition text-xl font-bold">-5</button>
+                <div id="display" class="text-6xl font-black tracking-tighter italic">25:00</div>
+                <button onclick="adjustTime(5)" class="text-slate-500 hover:text-white transition text-xl font-bold">+5</button>
+            </div>
+
+            <div class="flex gap-4 mb-10">
+                <button id="startBtn" onclick="toggleTimer()" class="flex-[2] bg-white text-black hover:bg-cyan-400 py-3 rounded-lg font-bold transition uppercase text-xs tracking-widest">Start Session</button>
+                <button onclick="reset()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-3 rounded-lg font-bold transition uppercase text-xs tracking-widest text-slate-400">Reset</button>
+            </div>
+            
+            <div class="min-h-[50px] flex items-center justify-center">
+                <p id="quote" class="text-slate-500 text-[11px] uppercase tracking-[0.2em] leading-relaxed font-medium">
+                    "Discipline is choosing between what you want now and what you want most."
+                </p>
+            </div>
         </div>
-        
-        <p class="mt-8 text-slate-500 text-[10px] uppercase tracking-widest italic">"My spot next to you is permanent darling"</p>
     </div>
 
     <script>
-        let timeLeft = 25 * 60;
+        const quotes = [
+            "Discipline is choosing between what you want now and what you want most.",
+            "Great things never come from comfort zones.",
+            "Don't stop when you're tired. Stop when you're done.",
+            "Stay focused. Stay humble. Always hustle.",
+            "Action is the foundational key to all success.",
+            "The only way to predict the future is to create it."
+        ];
+
+        let startingMinutes = 25; 
+        let timeLeft = startingMinutes * 60;
+        let totalTime = startingMinutes * 60;
         let timerId = null;
+
         const display = document.getElementById('display');
-        const circle = document.getElementById('progress');
-        const circumference = 120 * 2 * Math.PI;
+        const progressBar = document.getElementById('progress-line');
+        const quoteElement = document.getElementById('quote');
+
+        function adjustTime(amount) {
+            if (timerId) return; // Prevent adjustment while running
+            startingMinutes = Math.max(5, startingMinutes + amount); // Min 5 mins
+            timeLeft = startingMinutes * 60;
+            totalTime = startingMinutes * 60;
+            updateDisplay();
+        }
 
         function updateDisplay() {
             const mins = Math.floor(timeLeft / 60);
             const secs = timeLeft % 60;
             display.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-            
-            const offset = circumference - (timeLeft / (25 * 60)) * circumference;
-            circle.style.strokeDashoffset = offset;
+            const widthPercentage = (timeLeft / totalTime) * 100;
+            progressBar.style.width = widthPercentage + "%";
         }
 
         function toggleTimer() {
@@ -63,30 +84,38 @@
             if (timerId) {
                 clearInterval(timerId);
                 timerId = null;
-                btn.innerText = "RESUME";
-                btn.classList.replace('bg-red-600', 'bg-cyan-600');
+                btn.innerText = "Resume Session";
+                btn.className = "flex-[2] bg-cyan-600 text-white py-3 rounded-lg font-bold transition uppercase text-xs tracking-widest";
             } else {
-                btn.innerText = "PAUSE";
-                btn.classList.add('bg-red-600');
+                btn.innerText = "Pause Session";
+                btn.className = "flex-[2] bg-slate-200 text-black py-3 rounded-lg font-bold transition uppercase text-xs tracking-widest";
                 timerId = setInterval(() => {
                     if (timeLeft > 0) {
                         timeLeft--;
                         updateDisplay();
                     } else {
                         clearInterval(timerId);
-                        alert("Session Complete, Tanisha!");
+                        alert("Focus Session Concluded.");
+                        newQuote();
                     }
                 }, 1000);
             }
         }
 
+        function newQuote() {
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            quoteElement.innerText = `"${randomQuote}"`;
+        }
+
         function reset() {
             clearInterval(timerId);
             timerId = null;
-            timeLeft = 25 * 60;
+            timeLeft = startingMinutes * 60;
+            totalTime = startingMinutes * 60;
             updateDisplay();
-            document.getElementById('startBtn').innerText = "START";
-            document.getElementById('startBtn').className = "flex-1 bg-cyan-600 py-4 rounded-2xl font-bold";
+            newQuote();
+            document.getElementById('startBtn').innerText = "Start Session";
+            document.getElementById('startBtn').className = "flex-[2] bg-white text-black py-3 rounded-lg font-bold transition uppercase text-xs tracking-widest";
         }
     </script>
 </body>
